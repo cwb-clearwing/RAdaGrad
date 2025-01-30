@@ -87,7 +87,7 @@ import torch
 from diffusers import AutoPipelineForText2Image
 pipeline = AutoPipelineForText2Image.from_pretrained("stable-diffusion-v1-5/stable-diffusion-v1-5", torch_dtype=torch.float16).to("cuda")
 for i in range(7):
-  pipeline.load_lora_weights("/home/jzhengbp/sddata/finetune/lora/naruto/checkpoint-"+str((i+2)*500), weight_name="pytorch_lora_weights.safetensors")
+  pipeline.load_lora_weights("/home/user/sddata/finetune/lora/naruto/checkpoint-"+str((i+2)*500), weight_name="pytorch_lora_weights.safetensors")
   #image = pipeline("a yellow flower").images[0]
   for j in range(20):
     image = pipeline("Hello Kitty with Naruto style, high quality, anime character, CG").images[0]
