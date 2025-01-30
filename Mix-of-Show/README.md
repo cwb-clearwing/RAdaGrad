@@ -7,7 +7,7 @@ git clone https://github.com/TencentARC/Mix-of-Show.git
 
 Step-2: Clone  this repo and replace all files into Mix-of-show repo.
 ```bash
-git clone https://github.com/cwb-clearwing/RGD_lora.git
+git clone https://github.com/cwb-clearwing/RAdaGrad.git
 ```
 
 Step-3: Train Mix-of-show single concept task using different optimziers(AdamW, scaled GD, scaled AdamW, RGD, RAdaGrad).
