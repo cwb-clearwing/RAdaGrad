@@ -6,7 +6,7 @@ git clone https://github.com/huggingface/diffusers.git
 ```
 2. Clone this repo and replace the files in peft folder and text_to_image folder to your local env. The peft folder is located in python site-packages while the text_to_image folder is located in the diffusers folder.
 ```bash 
-git clone https://github.com/cwb-clearwing/RGD_lora.git
+git clone https://github.com/cwb-clearwing/RAdaGrad.git
 cp -rf peft /your/local/peft/path/peft/
 cp -rf text_to_iamge /your/diffusers/path/text_to_iamge
 ```
