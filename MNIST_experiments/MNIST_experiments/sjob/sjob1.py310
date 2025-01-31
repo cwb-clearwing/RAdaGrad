@@ -1,0 +1,13 @@
+#!/bin/bash
+###Use queue (partition) q1
+#SBATCH -p q1
+### Use 1 nodes and 52 cores
+#SBATCH -N 1 -n 52 
+
+cd ${HOME}/PRGD/RGDnet-windows_20240606
+#export conda_env=${HOME}/anaconda3/envs/test
+export conda_env=${HOME}/anaconda3/envs/py3-10
+export PATH=${conda_env}/bin:${HOME}/anaconda3/condabin:${PATH}
+export LD_LIBRARY_PATH=${conda_env}/lib:${LD_LIBRARY_PATH}
+
+python train_optimizer.py
