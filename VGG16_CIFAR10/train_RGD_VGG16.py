@@ -14,7 +14,7 @@ if __name__ == '__main__':
     from sklearn.model_selection import train_test_split
     from training_api import *
     from torchvision import datasets, transforms
-    from VGG11 import VGG11
+    from VGG16 import VGG16
 
 
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -38,9 +38,9 @@ if __name__ == '__main__':
                         help='momentum (default: 0.1)')
     args = parser.parse_args()
 
-    MAX_EPOCHS = 3
+    MAX_EPOCHS = 400
     current_optimizer = 'RGD'
-    net = 'VGG11'
+    net = 'VGG16'
     if current_optimizer == 'RGD':
         pre = False;
     else:
@@ -54,11 +54,6 @@ if __name__ == '__main__':
     batches = [128]
     epsilons = [1.1]
 
-    stop_22 = 0.5
-    stop_32 = 0.5
-    stop_52 = 0.5
-    stop_72 = 0.5
-    stop_mean_15_30 = 0.5
 
     metric = accuracy
     criterion = torch.nn.CrossEntropyLoss()
@@ -66,10 +61,13 @@ if __name__ == '__main__':
 
 
     def cifar10_augmentation(inputs, training):
+
         inputs = torch.nn.functional.pad(inputs, (4, 4, 4, 4), mode='reflect')
         if training:
+
             i, j, h, w = transforms.RandomCrop.get_params(inputs, output_size=(32, 32))
             inputs = transforms.functional.crop(inputs, i, j, h, w)
+
             if torch.rand(1) < 0.5:
                 inputs = transforms.functional.hflip(inputs)
 
@@ -82,12 +80,6 @@ if __name__ == '__main__':
 
     def train_lr(NN, optimizer, train_loader, validation_loader, test_loader, criterion, metric, epochs,
                  metric_name='accuracy', device='cpu', count_bias=False, path=None, fine_tune=False, scheduler=None):
-        test_acc_20_22 = []
-        test_acc_30_32 = []
-        test_acc_50_52 = []
-        test_acc_75_77 = []
-        test_acc_15_30 = []
-        global stop_mean_15_30
 
         #%%
         running_data = pd.DataFrame(data=None,
@@ -205,38 +197,6 @@ if __name__ == '__main__':
                     acc_hist_test += float(metric(outputs, labels)) / k
             print(f'epoch[{epoch}]: loss: {loss_hist:9.4f} | {metric_name}: {acc_hist:9.4f} | val loss: {loss_hist_val:9.4f} | val {metric_name}:{acc_hist_val:9.4f}')
             print('=' * 100)
-            if 20 <= epoch <= 22:
-                test_acc_20_22.append(acc_hist_test)
-            if epoch >= 22 and all(acc < stop_22 for acc in test_acc_20_22):
-                print('Stop at epoch 22!!!!!!')
-                return running_data
-
-            if 30 <= epoch <= 32:
-                test_acc_30_32.append(acc_hist_test)
-            if epoch >= 32 and all(acc < stop_32 for acc in test_acc_30_32):
-                print('Stop at epoch 32!!!!!!')
-                return running_data
-
-            if 50 <= epoch <= 52:
-                test_acc_50_52.append(acc_hist_test)
-            if epoch >= 52 and all(acc < stop_52 for acc in test_acc_50_52):
-                print('Stop at epoch 52!!!!!!')
-                return running_data
-
-            if 75 <= epoch <= 77:
-                test_acc_75_77.append(acc_hist_test)
-            if epoch >= 77 and all(acc < stop_72 for acc in test_acc_75_77):
-                print('Stop at epoch 77!!!!!!')
-                return running_data
-
-            if 15 <= epoch <= 30:
-                test_acc_15_30.append(acc_hist_test)
-            if epoch >= 30 and np.mean(test_acc_15_30)<stop_mean_15_30:
-                print('Stop at epoch 30!!!!!!')
-                return running_data
-
-            if epoch == 30 and np.mean(test_acc_15_30)>stop_mean_15_30:
-                stop_mean_15_30 = max(np.mean(test_acc_15_30) - 0.00015, stop_mean_15_30)
 
 
 
@@ -281,6 +241,7 @@ if __name__ == '__main__':
                             transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2470, 0.2435, 0.2616])
                         ])
 
+
                         train_dataset = datasets.CIFAR10(root='./data', train=True, download=True,
                                                          transform=transform_train)
                         test_dataset = datasets.CIFAR10(root='./data', train=False, download=True,
@@ -297,16 +258,27 @@ if __name__ == '__main__':
                         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
                         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-                        if net == 'VGG11':
-                            f = VGG11(device=device)
+                        if net == 'VGG16':
+                            f = VGG16(device=device)
                         f = f.to(device)
                         optimizer_RGD = RGD_Opt(f, lr=lr, momentum=args.momentum, weight_decay=5e-5, epsilon=epsilon,
                                                 theta=theta, pre=pre)
-                        if net == 'VGG11':
-                            path = './results_RGD_VGG11/_My_running_data_net_' + str(net) + '_theta_' + str(
+                        if net == 'FC':
+                            path = './results_Full_Connection/_My_running_data_net_' + str(net) + '_theta_' + str(
+                                theta) + '_' + str(current_optimizer) + '_lr_' + str(lr) + '_batch_' + str(
+                                batch_size) + '_cifar'
+                        elif net == 'leNet-5':
+                            path = './results_leNet-5/_My_running_data_net_' + str(net) + '_theta_' + str(
+                                theta) + '_' + str(current_optimizer) + '_lr_' + str(lr) + '_batch_' + str(
+                                batch_size) + '_cifar'
+                        elif net == 'VGG16':
+                            path = './results_RGD_VGG16/_My_running_data_net_' + str(net) + '_theta_' + str(
                                 theta) + '_' + str(current_optimizer) + '_lr_' + str(lr) + '_batch_' + str(
                                 batch_size) + '_cifar_'
-
+                        else:
+                            path = './results_VGG11/_My_running_data_net_' + str(net) + '_theta_' + str(
+                                theta) + '_' + str(current_optimizer) + '_lr_' + str(lr) + '_batch_' + str(
+                                batch_size) + '_cifar'
                         print('=' * 100)
                         print(f'run number {index} \n theta = {theta} \n lr = {lr}')
                         train_results = train_lr(f, optimizer_RGD, train_loader, val_loader, test_loader, criterion,

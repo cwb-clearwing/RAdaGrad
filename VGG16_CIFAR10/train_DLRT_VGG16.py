@@ -65,9 +65,9 @@ if __name__ ==  '__main__':
 
 
 
-  thetas = [0.16]#[0.07,0.09,0.11,0.13]
+  thetas = [0.2]#[0.07,0.09,0.11,0.13]
   lrs = [0.035]
-  batch_sizes = [64]
+  batch_sizes = [128]
 
 
   metric  = accuracy
